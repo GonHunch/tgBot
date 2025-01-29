@@ -183,13 +183,14 @@ async def process_calories(message: Message, state: FSMContext):
         await state.clear()
     except ValueError:
         await message.reply("Пожалуйста, введите корректное количество граммов.")
+        await state.set_state(FoodForm.calorie_num)
 
 
 @router.message(Command("log_workout"))
 async def cmd_log_workout(message: Message, command: CommandObject):
     args = command.args.split()
 
-    if len(args) < 2:
+    if len(args) != 2:
         await message.reply("Пожалуйста, укажите тип тренировки и время в минутах. Пример: /log_workout бег 30")
         return
 
@@ -208,6 +209,7 @@ async def cmd_log_workout(message: Message, command: CommandObject):
         )
     except ValueError:
         await message.reply("Пожалуйста, укажите корректное время в минутах.")
+        return
 
 
 @router.message(Command("check_progress"))
