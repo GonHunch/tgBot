@@ -154,13 +154,16 @@ async def cmd_log_water(message: Message, command: CommandObject):
 
 @router.message(Command("log_food"))
 async def cmd_log_food(message: Message, command: CommandObject, state: FSMContext):
-    product_name, calories_per_100g = await get_food_info(command.args.strip())
-    await state.update_data(calories_per_100g=calories_per_100g)
+    food_info = await get_food_info(command.args.strip())
 
-    if calories_per_100g is None:
+    if food_info is None:
         await message.reply("Не удалось найти информацию о продукте.")
         return
 
+    product_name = food_info['name']
+    calories_per_100g = food_info['calories']
+
+    await state.update_data(calories_per_100g=calories_per_100g)
     await message.reply(f"{product_name} — {calories_per_100g} ккал на 100 г. Сколько грамм вы съели?")
     await state.set_state(FoodForm.calorie_num)
 
@@ -171,7 +174,7 @@ async def process_calories(message: Message, state: FSMContext):
     user_id = message.from_user.id
 
     try:
-        grams = float(message.text)
+        grams = int(message.text)
         calories_per_100g = float(data.get("calories_per_100g"))
         consumed_calories = (calories_per_100g * grams) / 100
         users[user_id]["logged_calories"] += consumed_calories
