@@ -39,17 +39,21 @@ def calculate_calories(weight, height, age, activity):
 
 
 async def get_food_info(food_name):
-    url = f"https://world.openfoodfacts.org/api/v0/product/{food_name}.json"
-
+    url = f"https://world.openfoodfacts.org/cgi/search.pl?action=process&search_terms={food_name}&json=true"
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             if response.status == 200:
                 data = await response.json()
-                if 'product' in data and 'nutriments' in data['product']:
-                    product_name = data['product'].get('product_name', 'Неизвестный продукт')
-                    calories_per_100g = data['product']['nutriments'].get('energy-kcal_100g', None)
-                    return product_name, calories_per_100g
-    return None, None
+                products = data.get('products', [])
+                if products:
+                    first_product = products[0]
+                    return {
+                        'name': first_product.get('product_name', 'Неизвестно'),
+                        'calories': first_product.get('nutriments', {}).get('energy-kcal_100g', 0)
+                    }
+                return None
+            print(f"Ошибка: {response.status}")
+            return None
 
 
 def calculate_calories_burned(workout_type, duration):
@@ -228,7 +232,7 @@ async def cmd_check_progress(message: Message):
         "Калории:\n"
         f"- Потреблено: {logged_calories} ккал из {calorie_goal} ккал.\n"
         f"- Сожжено: {burned_calories} ккал.\n"
-        f"- Баланс: {calorie_goal - logged_calories + burned_calories} ккал."
+        f"- Осталось: {calorie_goal - logged_calories + burned_calories} ккал."
     )
 
     await message.reply(progress_message)

@@ -16,7 +16,7 @@ dp.message.middleware(LoggingMiddleware())
 
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
-    await message.answer("Hello!")
+    await message.answer("Добро пожаловать! Я бот для расчета нормы воды и калорий. \nВведите /help для списка команд.")
 
 
 async def main():
