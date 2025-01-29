@@ -142,9 +142,10 @@ async def process_city(message: Message, state: FSMContext):
 @router.message(Command("log_water"))
 async def cmd_log_water(message: Message, command: CommandObject):
     user_id = message.from_user.id
-    users[user_id]["logged_water"] = int(command.args.strip())
-    await message.reply(f"Записано: {users[user_id]["logged_water"]} мл. \n"
-                        f"Осталось выпить: {users[user_id]["water_goal"] - users[user_id]["logged_water"]} мл.")
+    consumed_water = int(command.args.strip())
+    users[user_id]["logged_water"] = consumed_water
+    await message.reply(f"Записано: {consumed_water} мл. \n"
+                        f"Осталось выпить: {users[user_id]['water_goal'] - consumed_water} мл.")
 
 
 @router.message(Command("log_food"))
